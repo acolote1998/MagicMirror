@@ -1,0 +1,1943 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bus Information</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.5/font/bootstrap-icons.min.css"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+      }
+      th,
+      td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+      }
+      th {
+        background-color: #f2f2f2;
+      }
+
+      .busInfo {
+        padding: 5px;
+        border: solid 2px;
+        border-radius: 8px;
+        font-size: 45px;
+        margin: 20px;
+        background-color: rgb(230, 228, 228);
+        text-shadow: 2px 2px 5px rgba(255, 255, 255, 0.781);
+      }
+      .timeStyle {
+        font-size: 400px;
+        height: 480px;
+        font-family: Arial, Helvetica, sans-serif;
+        text-shadow: 2px 2px 5px rgba(255, 255, 255, 0.781);
+      }
+      .dayAndDate {
+        font-size: 50px;
+        height: 0px;
+        color: lightgray;
+        font-family: Arial, Helvetica, sans-serif;
+        text-shadow: 2px 2px 5px rgba(255, 255, 255, 0.781);
+      }
+      .titleTransport {
+        font-size: 100px;
+        font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
+        text-shadow: 2px 2px 5px rgba(255, 255, 255, 0.781);
+      }
+      .weather {
+        font-size: 80px;
+        height: 0px;
+        font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
+        color: darkgray;
+        text-shadow: 2px 2px 5px rgba(255, 255, 255, 0.781);
+      }
+      .noShow {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container-fluid" id="trafic-info">
+      <div class="row">
+        <div class="col-2 text-center weather" id="weather">XX °</div>
+      </div>
+      <div class="row-fluid">
+        <div class="dayAndDate text-center" id="dayanddate"></div>
+        <div class="col-12 timeStyle text-center" id="time"></div>
+      </div>
+      <div class="row">
+        <div class="col-12 text-center" id="buses">
+          <div class="titleTransport">
+            <i style="color: rgb(197, 0, 0)" class="bi bi-bus-front"></i>
+            Spegeldammsparken
+          </div>
+          <div id="bus-info">
+            <div id="trip540universitetet">
+              <div id="540touniversitetet">
+                <span id="time540universitetet"></span>
+              </div>
+            </div>
+            <div id="trip505bagatorpssodra">
+              <div id="505tobagartorp"><span id="time505bagartorp"></span></div>
+            </div>
+            <div id="trip505solnacentrum">
+              <div id="505tosolnacentrum">
+                <span id="time505solnacentrum"></span>
+              </div>
+            </div>
+            <div id="trip540tenstacentrum">
+              <div id="540totenstacentrum">
+                <span id="time540tenstacentrum"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 text-center" id="trenes">
+          <div class="titleTransport">
+            <i class="bi bi-train-front"></i> Ulriksdal
+          </div>
+          <div id="train-info">
+            <div id="trippendeltoStockholmCity">
+              <div id="pendeltostockholmcity">
+                <span id="timependelstockholmcity"></span>
+              </div>
+            </div>
+            <div id="trippendeltoHaggvik">
+              <div id="pendeltohaggvik">
+                <span id="timependelhaggvik"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 text-center" id="tunnelbannas">
+          <div class="titleTransport">
+            <i style="color: blue" class="bi bi-train-front"></i>
+            Hallonbergen
+          </div>
+          <div id="tb-info">
+            <div id="triptbakalla">
+              <div id="tbtoakalla"><span id="timetbakalla"></span></div>
+            </div>
+            <div id="triptbtc">
+              <div id="tbtotc"><span id="timetbtc"></span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      //
+      var departure540touniversitetet = "";
+      var canfetchdeparture540touniversitetet = false;
+      //
+      var departure505tobagartorp = "";
+      var canfetchdeparture505tobagartorp = false;
+      //
+      var departure505tosolnacentrum = "";
+      var canfetchdeparture505tosolnacentrum = false;
+      //
+      var departure540totenstacentrum = "";
+      var canfetchdeparture540totenstacentrum = false;
+      //
+      var departurependeltotc = "";
+      var canfetchdeparturependeltotc = false;
+      //
+      var departurependeltomarsta = "";
+      var canfetchdeparturependeltomarsta = false;
+      //
+      var departuretbtoakalla = "";
+      var canfetchdeparturetbtoakalla = false;
+      //
+      var departuretbtokungdstradgarden = "";
+      var canfetchdeparturetbtokungdstradgarden = false;
+      //
+      var lastfetched = "";
+      var nextfetch = "";
+      var canfetch = true;
+
+      function addMinutesToTime(time, extraMinutes) {
+        // Split the time string (HH:MM) into hours and minutes
+        let [hours, minutes] = time.split(":").map(Number);
+
+        // Add the extra minutes
+        minutes += extraMinutes;
+
+        // Handle overflow of minutes
+        if (minutes >= 60) {
+          hours += Math.floor(minutes / 60); // Add extra hours
+          minutes = minutes % 60; // Remaining minutes
+        }
+
+        // Handle overflow of hours (optional, based on your use case)
+        if (hours >= 24) {
+          hours = hours % 24; // Reset to 0 if it exceeds 24
+        }
+
+        // Format hours and minutes back into HH:MM
+        var newTime = `${hours.toString().padStart(2, "0")}:${minutes
+          .toString()
+          .padStart(2, "0")}`;
+        if (extraMinutes == "Now") {
+          newTime = getCurrentTime();
+        }
+        return newTime;
+      }
+
+      var minutes = "";
+      function getCurrentTime() {
+        const now = new Date();
+        const hours = String(now.getHours()).padStart(2, "0");
+        const minutes = String(now.getMinutes()).padStart(2, "0");
+        return `${hours}:${minutes}`;
+      }
+
+      function calculateTimeDifference(currentTimeStr, departureTimeStr) {
+        if (!currentTimeStr || !departureTimeStr) {
+          console.error(
+            "Invalid time format:",
+            "Current time: " + currentTimeStr,
+            "Departure time: " + departureTimeStr
+          );
+          if (departureTimeStr == "") {
+            console.log("Blank Departure Time");
+            return 404; //as an error)
+          } else {
+            return 0;
+          }
+        }
+
+        // Ensure times are in correct format
+        const [currentHours, currentMinutes] = currentTimeStr
+          .split(":")
+          .map(Number);
+        const [departureHours, departureMinutes] = departureTimeStr
+          .split(":")
+          .map(Number);
+
+        // Create date objects for today with the respective times
+        const now = new Date();
+        const currentTime = new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          now.getDate(),
+          currentHours,
+          currentMinutes
+        );
+        const departureTime = new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          now.getDate(),
+          departureHours,
+          departureMinutes
+        );
+
+        // Calculate time difference in milliseconds
+        const differenceInMilliseconds = departureTime - currentTime;
+        return Math.floor(differenceInMilliseconds / 60000); // Convert milliseconds to minutes
+      }
+      ////////////////BUSES////////////////
+      ////////////////BUSES////////////////
+      ////////////////BUSES////////////////
+      async function fetch540tenstacentrum() {
+        try {
+          console.log(
+            "%c Fetch 540 Tensta called %c " + getCurrentTime(),
+            "background: lightgreen; color:black;", // Style for the message
+            "background: lightgreen; color:black;" // Different style for the time
+          );
+
+          const uniqueParam = new Date().getTime();
+          const response = await fetch(
+            `/api/trip540tenstacentrum?timestamp=${uniqueParam}`
+          );
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const data = await response.json();
+
+          if (!data.Trip || data.Trip.length === 0) {
+            throw new Error("No trip540tenstacentrum data available");
+          }
+
+          let upcomingTrip = null;
+          let earliestTimeDifference = Infinity;
+
+          // console.log("Trips fetched:", data.Trip);
+
+          // Loop through the trips
+          for (const trip of data.Trip) {
+            const legs = trip.LegList?.Leg || []; // Safely access the array of legs
+
+            // Iterate through each leg in the trip
+            for (const leg of legs) {
+              const product = leg.Product?.name || "Unknown";
+              const direction = leg.direction || "Unknown";
+              const originName = leg.Origin?.name || "Unknown Origin";
+
+              // Log before applying any filters to debug data
+              //    console.log(
+              //     `Origin: ${originName}, Product: ${product}, Direction: ${direction}`
+              //    );
+
+              // Only consider 540 bus towards Tensta centrum from Spegeldammsparken
+              if (
+                originName === "Spegeldammsparken" &&
+                product === "Bus 540" &&
+                direction === "Tensta centrum"
+              ) {
+                const originalDepartureTime = leg.Origin?.time || "00:00:00";
+                const realTimeDepartureTime =
+                  leg.Origin?.rtTime || originalDepartureTime;
+                const currentTime = getCurrentTime();
+
+                // Log times for debugging
+                //     console.log(
+                //       `Current Time: ${currentTime}, Real Time Departure: ${realTimeDepartureTime}`
+                //    );
+
+                const timeDifference = calculateTimeDifference(
+                  currentTime,
+                  realTimeDepartureTime
+                );
+                //  console.log(`Time difference: ${timeDifference}`);
+
+                if (
+                  timeDifference >= 0 &&
+                  timeDifference < earliestTimeDifference
+                ) {
+                  // Update the upcomingTrip if this bus is sooner than the current upcomingTrip
+                  upcomingTrip = trip;
+                  earliestTimeDifference = timeDifference;
+                }
+              }
+            }
+          }
+
+          // If no upcoming trip was found, show a message
+          if (!upcomingTrip) {
+            document.getElementById("time540tenstacentrum").innerText =
+              "No buses 540 towards Tensta Centrum coming soon.";
+
+            return;
+          }
+
+          const leg = upcomingTrip.LegList.Leg[0]; // We know this is the best trip, so take the first leg
+          const product = leg.Product?.name || "Unknown";
+          const direction = leg.direction || "Unknown";
+          const originalDepartureTime = leg.Origin?.time || "00:00:00";
+          const originName = leg.Origin?.name || "Unknown Origin";
+          const realTimeDepartureTime =
+            leg.Origin?.rtTime || originalDepartureTime;
+          var comingInHowManyMinutes = calculateTimeDifference(
+            getCurrentTime(),
+            realTimeDepartureTime
+          );
+
+          // Compare original and real-time departure times to calculate delay
+          const delayMinutes = calculateTimeDifference(
+            originalDepartureTime,
+            realTimeDepartureTime
+          );
+          let delayedOrNot = "";
+          if (delayMinutes > 0) {
+            delayedOrNot = `Delayed ${delayMinutes} minutes, coming in `;
+          } else if (delayMinutes < 0) {
+            delayedOrNot = `${Math.abs(delayMinutes)} minute early, coming in `;
+          } else {
+            delayedOrNot = `On time, coming in `;
+          }
+          if (comingInHowManyMinutes == 0) {
+            delayedOrNot = "";
+            comingInHowManyMinutes = "Now";
+            minutes = "";
+          } else {
+            minutes = " minutes";
+          }
+          //It updates a global variable that will now know when the transport is coming
+          departure540totenstacentrum = addMinutesToTime(
+            getCurrentTime(),
+            comingInHowManyMinutes
+          );
+          // Display the bus information
+          const trip540tenstacentrumInfoHTML =
+            `
+
+          <div class="busInfo" id="540totenstacentrum">
+              <i style="color: rgb(197, 0, 0)" class="bi bi-bus-front"></i></i> ${product.slice(
+                4,
+                7
+              )} to ${direction} in <span id="time540tenstacentrum">${comingInHowManyMinutes}</span>` +
+            minutes +
+            `
+          </div>
+
+      `;
+
+          document.getElementById("trip540tenstacentrum").innerHTML =
+            trip540tenstacentrumInfoHTML;
+        } catch (error) {
+          console.error("Error fetching bus info:", error);
+          document.getElementById("time540tenstacentrum").innerText =
+            "Error loading bus information";
+        }
+      }
+
+      async function fetch540universitetet() {
+        try {
+          console.log(
+            "%c Fetch 540 Universitetet called %c " + getCurrentTime(),
+            "background: lightgreen; color:black;",
+            "background: lightgreen; color:black;"
+          );
+          const uniqueParam = new Date().getTime();
+          const response = await fetch(
+            `/api/trip540universitetet?timestamp=${uniqueParam}`
+          );
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const data = await response.json();
+
+          if (!data.Trip || data.Trip.length === 0) {
+            throw new Error("No trip540universitetet data available");
+          }
+
+          let upcomingTrip = null;
+          let earliestTimeDifference = Infinity;
+
+          // console.log("Trips fetched:", data.Trip);
+
+          // Loop through the trips
+          for (const trip of data.Trip) {
+            const legs = trip.LegList?.Leg || []; // Safely access the array of legs
+
+            // Iterate through each leg in the trip
+            for (const leg of legs) {
+              const product = leg.Product?.name || "Unknown";
+              const direction = leg.direction || "Unknown";
+              const originName = leg.Origin?.name || "Unknown Origin";
+
+              // Log before applying any filters to debug data
+              //    console.log(
+              //     `Origin: ${originName}, Product: ${product}, Direction: ${direction}`
+              //    );
+
+              // Only consider 540 bus towards Universitetet from Spegeldammsparken
+              if (
+                originName === "Spegeldammsparken" &&
+                product === "Bus 540" &&
+                direction === "Universitetet"
+              ) {
+                const originalDepartureTime = leg.Origin?.time || "00:00:00";
+                const realTimeDepartureTime =
+                  leg.Origin?.rtTime || originalDepartureTime;
+                const currentTime = getCurrentTime();
+
+                // Log times for debugging
+                //     console.log(
+                //       `Current Time: ${currentTime}, Real Time Departure: ${realTimeDepartureTime}`
+                //    );
+
+                const timeDifference = calculateTimeDifference(
+                  currentTime,
+                  realTimeDepartureTime
+                );
+                //  console.log(`Time difference: ${timeDifference}`);
+
+                if (
+                  timeDifference >= 0 &&
+                  timeDifference < earliestTimeDifference
+                ) {
+                  // Update the upcomingTrip if this bus is sooner than the current upcomingTrip
+                  upcomingTrip = trip;
+                  earliestTimeDifference = timeDifference;
+                }
+              }
+            }
+          }
+
+          // If no upcoming trip was found, show a message
+          if (!upcomingTrip) {
+            document.getElementById("time540universitetet").innerText =
+              "No buses 540 towards Universitetet coming soon.";
+            return;
+          }
+
+          const leg = upcomingTrip.LegList.Leg[0]; // We know this is the best trip, so take the first leg
+          const product = leg.Product?.name || "Unknown";
+          const direction = leg.direction || "Unknown";
+          const originalDepartureTime = leg.Origin?.time || "00:00:00";
+          const originName = leg.Origin?.name || "Unknown Origin";
+          const realTimeDepartureTime =
+            leg.Origin?.rtTime || originalDepartureTime;
+          var comingInHowManyMinutes = calculateTimeDifference(
+            getCurrentTime(),
+            realTimeDepartureTime
+          );
+
+          // Compare original and real-time departure times to calculate delay
+          const delayMinutes = calculateTimeDifference(
+            originalDepartureTime,
+            realTimeDepartureTime
+          );
+          let delayedOrNot = "";
+          if (delayMinutes > 0) {
+            delayedOrNot = `Delayed ${delayMinutes} minutes, coming in `;
+          } else if (delayMinutes < 0) {
+            delayedOrNot = `${Math.abs(delayMinutes)} minute early, coming in `;
+          } else {
+            delayedOrNot = `On time, coming in `;
+          }
+          if (comingInHowManyMinutes == 0) {
+            delayedOrNot = "";
+            comingInHowManyMinutes = "Now";
+            minutes = "";
+          } else {
+            minutes = " minutes";
+          }
+          //It updates a global variable that will now know when the transport is coming
+          departure540touniversitetet = addMinutesToTime(
+            getCurrentTime(),
+            comingInHowManyMinutes
+          );
+          // Display the bus information
+          const trip540universitetetInfoHTML =
+            `
+
+          <div class="busInfo" id="540touniversitetet">
+              <i style="color: rgb(197, 0, 0)" class="bi bi-bus-front"></i></i> ${product.slice(
+                4,
+                7
+              )} to ${direction} in <span id="time540universitetet">${comingInHowManyMinutes}</span>` +
+            minutes +
+            `
+          </div>
+
+      `;
+
+          document.getElementById("trip540universitetet").innerHTML =
+            trip540universitetetInfoHTML;
+        } catch (error) {
+          console.error("Error fetching bus info:", error);
+          document.getElementById("time540universitetet").innerText =
+            "Error loading bus information";
+        }
+      }
+
+      async function fetch505bagatorpssodra() {
+        try {
+          console.log(
+            "%c Fetch 505 Bagartorps called %c " + getCurrentTime(),
+            "background: lightgreen; color:black;",
+            "background: lightgreen; color:black;"
+          );
+          const uniqueParam = new Date().getTime();
+          const response = await fetch(
+            `/api/trip505bagatorpssodra?timestamp=${uniqueParam}`
+          );
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const data = await response.json();
+
+          if (!data.Trip || data.Trip.length === 0) {
+            throw new Error("No trip505bagatorpssodra data available");
+          }
+
+          let upcomingTrip = null;
+          let earliestTimeDifference = Infinity;
+
+          // console.log("Trips fetched:", data.Trip);
+
+          // Loop through the trips
+          for (const trip of data.Trip) {
+            const legs = trip.LegList?.Leg || []; // Safely access the array of legs
+
+            // Iterate through each leg in the trip
+            for (const leg of legs) {
+              const product = leg.Product?.name || "Unknown";
+              const direction = leg.direction || "Unknown";
+              const originName = leg.Origin?.name || "Unknown Origin";
+
+              // Log before applying any filters to debug data
+              //    console.log(
+              //     `Origin: ${originName}, Product: ${product}, Direction: ${direction}`
+              //    );
+
+              // Only consider 505 bus towards Bagartorp from Spegeldammsparken
+              if (
+                originName === "Spegeldammsparken" &&
+                product === "Bus 505" &&
+                direction === "Bagartorp"
+              ) {
+                const originalDepartureTime = leg.Origin?.time || "00:00:00";
+                const realTimeDepartureTime =
+                  leg.Origin?.rtTime || originalDepartureTime;
+                const currentTime = getCurrentTime();
+
+                // Log times for debugging
+                //     console.log(
+                //       `Current Time: ${currentTime}, Real Time Departure: ${realTimeDepartureTime}`
+                //    );
+
+                const timeDifference = calculateTimeDifference(
+                  currentTime,
+                  realTimeDepartureTime
+                );
+                //  console.log(`Time difference: ${timeDifference}`);
+
+                if (
+                  timeDifference >= 0 &&
+                  timeDifference < earliestTimeDifference
+                ) {
+                  // Update the upcomingTrip if this bus is sooner than the current upcomingTrip
+                  upcomingTrip = trip;
+                  earliestTimeDifference = timeDifference;
+                }
+              }
+            }
+          }
+
+          // If no upcoming trip was found, show a message
+          if (!upcomingTrip) {
+            document.getElementById("time505bagartorp").innerText =
+              "No buses 505 towards Bagartorp coming soon.";
+
+            return;
+          }
+
+          const leg = upcomingTrip.LegList.Leg[0]; // We know this is the best trip, so take the first leg
+          const product = leg.Product?.name || "Unknown";
+          const direction = leg.direction || "Unknown";
+          const originalDepartureTime = leg.Origin?.time || "00:00:00";
+          const originName = leg.Origin?.name || "Unknown Origin";
+          const realTimeDepartureTime =
+            leg.Origin?.rtTime || originalDepartureTime;
+          var comingInHowManyMinutes = calculateTimeDifference(
+            getCurrentTime(),
+            realTimeDepartureTime
+          );
+
+          // Compare original and real-time departure times to calculate delay
+          const delayMinutes = calculateTimeDifference(
+            originalDepartureTime,
+            realTimeDepartureTime
+          );
+          let delayedOrNot = "";
+          if (delayMinutes > 0) {
+            delayedOrNot = `Delayed ${delayMinutes} minutes, coming in `;
+          } else if (delayMinutes < 0) {
+            delayedOrNot = `${Math.abs(delayMinutes)} minute early, coming in `;
+          } else {
+            delayedOrNot = `On time, coming in `;
+          }
+          if (comingInHowManyMinutes == 0) {
+            delayedOrNot = "";
+            comingInHowManyMinutes = "Now";
+            minutes = "";
+          } else {
+            minutes = " minutes";
+          }
+          //It updates a global variable that will now know when the transport is coming
+          departure505tobagartorp = addMinutesToTime(
+            getCurrentTime(),
+            comingInHowManyMinutes
+          );
+          // Display the bus information
+          const trip505bagatorpssodraInfoHTML =
+            `
+
+          <div class="busInfo" id="505tobagartorp">
+              <i style="color: rgb(197, 0, 0)" class="bi bi-bus-front"></i></i> ${product.slice(
+                4,
+                7
+              )} to ${direction} in <span id="time505bagartorp">${comingInHowManyMinutes}</span></span>` +
+            minutes +
+            `
+          </div>
+
+      `;
+
+          document.getElementById("trip505bagatorpssodra").innerHTML =
+            trip505bagatorpssodraInfoHTML;
+        } catch (error) {
+          console.error("Error fetching bus info:", error);
+          document.getElementById("time505bagartorp").innerText =
+            "Error loading bus information.";
+        }
+      }
+
+      async function fetch505solnacentrum() {
+        try {
+          console.log(
+            "%c Fetch 505 Solna called %c " + getCurrentTime(),
+            "background: lightgreen; color:black;",
+            "background: lightgreen; color:black;"
+          );
+          const uniqueParam = new Date().getTime();
+          const response = await fetch(
+            `/api/trip505solnacentrum?timestamp=${uniqueParam}`
+          );
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const data = await response.json();
+
+          if (!data.Trip || data.Trip.length === 0) {
+            throw new Error("No trip505solnacentrum data available");
+          }
+
+          let upcomingTrip = null;
+          let earliestTimeDifference = Infinity;
+
+          // console.log("Trips fetched:", data.Trip);
+
+          // Loop through the trips
+          for (const trip of data.Trip) {
+            const legs = trip.LegList?.Leg || []; // Safely access the array of legs
+
+            // Iterate through each leg in the trip
+            for (const leg of legs) {
+              const product = leg.Product?.name || "Unknown";
+              const direction = leg.direction || "Unknown";
+              const originName = leg.Origin?.name || "Unknown Origin";
+
+              // Log before applying any filters to debug data
+              //    console.log(
+              //     `Origin: ${originName}, Product: ${product}, Direction: ${direction}`
+              //    );
+
+              // Only consider 505 bus towards Solna Centrum from Spegeldammsparken
+              if (
+                originName === "Spegeldammsparken" &&
+                product === "Bus 505" &&
+                direction === "Solna centrum"
+              ) {
+                const originalDepartureTime = leg.Origin?.time || "00:00:00";
+                const realTimeDepartureTime =
+                  leg.Origin?.rtTime || originalDepartureTime;
+                const currentTime = getCurrentTime();
+
+                // Log times for debugging
+                //     console.log(
+                //       `Current Time: ${currentTime}, Real Time Departure: ${realTimeDepartureTime}`
+                //    );
+
+                const timeDifference = calculateTimeDifference(
+                  currentTime,
+                  realTimeDepartureTime
+                );
+                //  console.log(`Time difference: ${timeDifference}`);
+
+                if (
+                  timeDifference >= 0 &&
+                  timeDifference < earliestTimeDifference
+                ) {
+                  // Update the upcomingTrip if this bus is sooner than the current upcomingTrip
+                  upcomingTrip = trip;
+                  earliestTimeDifference = timeDifference;
+                }
+              }
+            }
+          }
+
+          // If no upcoming trip was found, show a message
+          if (!upcomingTrip) {
+            document.getElementById("time505solnacentrum").innerText =
+              "No buses 505 towards Solna Centrum coming soon.";
+
+            return;
+          }
+
+          const leg = upcomingTrip.LegList.Leg[0]; // We know this is the best trip, so take the first leg
+          const product = leg.Product?.name || "Unknown";
+          const direction = leg.direction || "Unknown";
+          const originalDepartureTime = leg.Origin?.time || "00:00:00";
+          const originName = leg.Origin?.name || "Unknown Origin";
+          const realTimeDepartureTime =
+            leg.Origin?.rtTime || originalDepartureTime;
+          var comingInHowManyMinutes = calculateTimeDifference(
+            getCurrentTime(),
+            realTimeDepartureTime
+          );
+
+          // Compare original and real-time departure times to calculate delay
+          const delayMinutes = calculateTimeDifference(
+            originalDepartureTime,
+            realTimeDepartureTime
+          );
+          let delayedOrNot = "";
+          if (delayMinutes > 0) {
+            delayedOrNot = `Delayed ${delayMinutes} minutes, coming in `;
+          } else if (delayMinutes < 0) {
+            delayedOrNot = `${Math.abs(delayMinutes)} minute early, coming in `;
+          } else {
+            delayedOrNot = `On time, coming in `;
+          }
+          if (comingInHowManyMinutes == 0) {
+            delayedOrNot = "";
+            comingInHowManyMinutes = "Now";
+            minutes = "";
+          } else {
+            minutes = " minutes";
+          }
+          //It updates a global variable that will now know when the transport is coming
+          departure505tosolnacentrum = addMinutesToTime(
+            getCurrentTime(),
+            comingInHowManyMinutes
+          );
+          // Display the bus information
+          const trip505solnacentrumInfoHTML =
+            `
+
+          <div class="busInfo" id="505tosolnacentrum">
+              <i style="color: rgb(197, 0, 0)" class="bi bi-bus-front"></i></i> ${product.slice(
+                4,
+                7
+              )} to ${direction} in <span id="time505solnacentrum">${comingInHowManyMinutes}</span>` +
+            minutes +
+            `
+          </div>
+
+      `;
+
+          document.getElementById("trip505solnacentrum").innerHTML =
+            trip505solnacentrumInfoHTML;
+        } catch (error) {
+          console.error("Error fetching bus info:", error);
+          document.getElementById("time505solnacentrum").innerText =
+            "Error loading bus information.";
+        }
+      }
+
+      ////////////////BUSES////////////////
+      ////////////////BUSES////////////////
+      ////////////////BUSES////////////////
+
+      ////////////////TRAINS////////////////
+      ////////////////TRAINS////////////////
+      ////////////////TRAINS////////////////
+      async function fetchpendeltoStockholmCity() {
+        try {
+          console.log(
+            "%c Fetch Pendel T-C called %c " + getCurrentTime(),
+            "background: lightgreen; color:black;",
+            "background: lightgreen; color:black;"
+          );
+          const uniqueParam = new Date().getTime();
+          const response = await fetch(
+            `/api/trippendeltoStockholmCity?timestamp=${uniqueParam}`
+          );
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const data = await response.json();
+
+          if (!data.Trip || data.Trip.length === 0) {
+            throw new Error("No trippendeltoStockholmCity data available");
+          }
+
+          let upcomingTrip = null;
+          let earliestTimeDifference = Infinity;
+
+          // console.log("Trips fetched:", data.Trip);
+
+          // Loop through the trips
+          for (const trip of data.Trip) {
+            const legs = trip.LegList?.Leg || []; // Safely access the array of legs
+
+            // Iterate through each leg in the trip
+            for (const leg of legs) {
+              const product = leg.Product?.name || "Unknown";
+              const destination = leg.Destination?.name || "Unknown";
+              const originName = leg.Origin?.name || "Unknown Origin";
+
+              // Only consider Trains towards Stockholm City from Ulriksdal
+              if (
+                originName === "Ulriksdal" &&
+                (destination === "Stockholm City" ||
+                  destination === "Stockholms central")
+              ) {
+                const originalDepartureTime = leg.Origin?.time || "00:00:00";
+                const realTimeDepartureTime =
+                  leg.Origin?.rtTime || originalDepartureTime;
+                const currentTime = getCurrentTime();
+
+                // Log times for debugging
+                //     console.log(
+                //       `Current Time: ${currentTime}, Real Time Departure: ${realTimeDepartureTime}`
+                //    );
+
+                const timeDifference = calculateTimeDifference(
+                  currentTime,
+                  realTimeDepartureTime
+                );
+                //  console.log(`Time difference: ${timeDifference}`);
+
+                if (
+                  timeDifference >= 0 &&
+                  timeDifference < earliestTimeDifference
+                ) {
+                  // Update the upcomingTrip if this bus is sooner than the current upcomingTrip
+                  upcomingTrip = trip;
+                  earliestTimeDifference = timeDifference;
+                }
+              }
+            }
+          }
+
+          // If no upcoming trip was found, show a message
+          if (!upcomingTrip) {
+            document.getElementById("timependelstockholmcity").innerText =
+              "No trains towards Stockholm City coming soon.";
+
+            return;
+          }
+
+          const leg = upcomingTrip.LegList.Leg[0]; // We know this is the best trip, so take the first leg
+          const product = leg.Product?.name || "Unknown";
+          const direction = leg.direction || "Unknown";
+          const originalDepartureTime = leg.Origin?.time || "00:00:00";
+          const originName = leg.Origin?.name || "Unknown Origin";
+          const realTimeDepartureTime =
+            leg.Origin?.rtTime || originalDepartureTime;
+          var comingInHowManyMinutes = calculateTimeDifference(
+            getCurrentTime(),
+            realTimeDepartureTime
+          );
+
+          // Compare original and real-time departure times to calculate delay
+          const delayMinutes = calculateTimeDifference(
+            originalDepartureTime,
+            realTimeDepartureTime
+          );
+          let delayedOrNot = "";
+          if (delayMinutes > 0) {
+            delayedOrNot = `Delayed ${delayMinutes} minutes, coming in `;
+          } else if (delayMinutes < 0) {
+            delayedOrNot = `${Math.abs(delayMinutes)} minute early, coming in `;
+          } else {
+            delayedOrNot = `On time, coming in `;
+          }
+          if (comingInHowManyMinutes == 0) {
+            delayedOrNot = "";
+            comingInHowManyMinutes = "Now";
+            minutes = "";
+          } else {
+            minutes = " minutes";
+          }
+          //It updates a global variable that will now know when the transport is coming
+          departurependeltotc = addMinutesToTime(
+            getCurrentTime(),
+            comingInHowManyMinutes
+          );
+          // Display the bus information
+          const trippendeltoStockholmCityInfoHTML =
+            `
+
+          <div class="busInfo" id="pendeltostockholmcity">
+              <i class="bi bi-train-front"></i> ${product.slice(
+                6,
+                9
+              )} to ${direction} in <span id="timependelstockholmcity">${comingInHowManyMinutes}</span>` +
+            minutes +
+            `
+          </div>
+
+      `;
+
+          document.getElementById("trippendeltoStockholmCity").innerHTML =
+            trippendeltoStockholmCityInfoHTML;
+        } catch (error) {
+          console.error("Error fetching bus info:", error);
+          document.getElementById("timependelstockholmcity").innerText =
+            "Error loading train information.";
+        }
+      }
+      async function fetchppendeltoHaggvik() {
+        try {
+          console.log(
+            "%c Fetch Pendel Haggvik called %c " + getCurrentTime(),
+            "background: lightgreen; color:black;",
+            "background: lightgreen; color:black;"
+          );
+          const uniqueParam = new Date().getTime();
+          const response = await fetch(
+            `/api/trippendeltoHaggvik?timestamp=${uniqueParam}`
+          );
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const data = await response.json();
+
+          if (!data.Trip || data.Trip.length === 0) {
+            throw new Error("No trippendeltoHaggvik data available");
+          }
+
+          let upcomingTrip = null;
+          let earliestTimeDifference = Infinity;
+
+          // console.log("Trips fetched:", data.Trip);
+
+          // Loop through the trips
+          for (const trip of data.Trip) {
+            const legs = trip.LegList?.Leg || []; // Safely access the array of legs
+
+            // Iterate through each leg in the trip
+            for (const leg of legs) {
+              const product = leg.Product?.name || "Unknown";
+              const destination = leg.Destination?.name || "Unknown";
+              const originName = leg.Origin?.name || "Unknown Origin";
+
+              // Only consider Trains towards Stockholm City from Ulriksdal
+              if (originName === "Ulriksdal" && destination === "Häggvik") {
+                const originalDepartureTime = leg.Origin?.time || "00:00:00";
+                const realTimeDepartureTime =
+                  leg.Origin?.rtTime || originalDepartureTime;
+                const currentTime = getCurrentTime();
+
+                // Log times for debugging
+                //     console.log(
+                //       `Current Time: ${currentTime}, Real Time Departure: ${realTimeDepartureTime}`
+                //    );
+
+                const timeDifference = calculateTimeDifference(
+                  currentTime,
+                  realTimeDepartureTime
+                );
+                //  console.log(`Time difference: ${timeDifference}`);
+
+                if (
+                  timeDifference >= 0 &&
+                  timeDifference < earliestTimeDifference
+                ) {
+                  // Update the upcomingTrip if this bus is sooner than the current upcomingTrip
+                  upcomingTrip = trip;
+                  earliestTimeDifference = timeDifference;
+                }
+              }
+            }
+          }
+
+          // If no upcoming trip was found, show a message
+          if (!upcomingTrip) {
+            document.getElementById("timependelhaggvik").innerText =
+              "No trains towards Uppsala/Märsta coming soon.";
+
+            return;
+          }
+
+          const leg = upcomingTrip.LegList.Leg[0]; // We know this is the best trip, so take the first leg
+          const product = leg.Product?.name || "Unknown";
+          const direction = leg.direction || "Unknown";
+          const originalDepartureTime = leg.Origin?.time || "00:00:00";
+          const originName = leg.Origin?.name || "Unknown Origin";
+          const realTimeDepartureTime =
+            leg.Origin?.rtTime || originalDepartureTime;
+          var comingInHowManyMinutes = calculateTimeDifference(
+            getCurrentTime(),
+            realTimeDepartureTime
+          );
+
+          // Compare original and real-time departure times to calculate delay
+          const delayMinutes = calculateTimeDifference(
+            originalDepartureTime,
+            realTimeDepartureTime
+          );
+          let delayedOrNot = "";
+          if (delayMinutes > 0) {
+            delayedOrNot = `Delayed ${delayMinutes} minutes, coming in `;
+          } else if (delayMinutes < 0) {
+            delayedOrNot = `${Math.abs(delayMinutes)} minute early, coming in `;
+          } else {
+            delayedOrNot = `On time, coming in `;
+          }
+          if (comingInHowManyMinutes == 0) {
+            delayedOrNot = "";
+            comingInHowManyMinutes = "Now";
+            minutes = "";
+          } else {
+            minutes = " minutes";
+          }
+          //It updates a global variable that will now know when the transport is coming
+          departurependeltomarsta = addMinutesToTime(
+            getCurrentTime(),
+            comingInHowManyMinutes
+          );
+          // Display the bus information
+          const trippendeltoHaggvikInfoHTML =
+            `
+
+          <div class="busInfo" id="pendeltohaggvik">
+              <i class="bi bi-train-front"></i> ${product.slice(
+                6,
+                9
+              )} to ${direction} in <span id="timependelhaggvik">${comingInHowManyMinutes}</span>` +
+            minutes +
+            `
+          </div>
+
+      `;
+
+          document.getElementById("trippendeltoHaggvik").innerHTML =
+            trippendeltoHaggvikInfoHTML;
+        } catch (error) {
+          console.error("Error fetching bus info:", error);
+          document.getElementById("timependelhaggvik").innerText =
+            "Error loading train information.";
+        }
+      }
+
+      ////////////////TRAINS////////////////
+      ////////////////TRAINS////////////////
+      ////////////////TRAINS////////////////
+
+      ////////////////TUNNELBANNA////////////////
+      ////////////////TUNNELBANNA////////////////
+      ////////////////TUNNELBANNA////////////////
+      async function fetchtbtc() {
+        try {
+          console.log(
+            "%c Fetch T-B T-C called %c " + getCurrentTime(),
+            "background: lightgreen; color:black;",
+            "background: lightgreen; color:black;"
+          );
+          const uniqueParam = new Date().getTime();
+          const response = await fetch(
+            `/api/triptbtc?timestamp=${uniqueParam}`
+          );
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const data = await response.json();
+
+          if (!data.Trip || data.Trip.length === 0) {
+            throw new Error("No triptbtc data available");
+          }
+
+          let upcomingTrip = null;
+          let earliestTimeDifference = Infinity;
+
+          // console.log("Trips fetched:", data.Trip);
+
+          // Loop through the trips
+          for (const trip of data.Trip) {
+            const legs = trip.LegList?.Leg || []; // Safely access the array of legs
+
+            // Iterate through each leg in the trip
+            for (const leg of legs) {
+              const product = leg.Product?.name || "Unknown";
+              const destination = leg.Destination?.name || "Unknown";
+              const originName = leg.Origin?.name || "Unknown Origin";
+
+              // Only consider Trains towards Stockholm City from Ulriksdal
+              if (
+                originName === "Hallonbergen" &&
+                destination === "T-Centralen"
+              ) {
+                const originalDepartureTime = leg.Origin?.time || "00:00:00";
+                const realTimeDepartureTime =
+                  leg.Origin?.rtTime || originalDepartureTime;
+                const currentTime = getCurrentTime();
+
+                // Log times for debugging
+                //     console.log(
+                //       `Current Time: ${currentTime}, Real Time Departure: ${realTimeDepartureTime}`
+                //    );
+
+                const timeDifference = calculateTimeDifference(
+                  currentTime,
+                  realTimeDepartureTime
+                );
+                //  console.log(`Time difference: ${timeDifference}`);
+
+                if (
+                  timeDifference >= 0 &&
+                  timeDifference < earliestTimeDifference
+                ) {
+                  // Update the upcomingTrip if this bus is sooner than the current upcomingTrip
+                  upcomingTrip = trip;
+                  earliestTimeDifference = timeDifference;
+                }
+              }
+            }
+          }
+
+          // If no upcoming trip was found, show a message
+          if (!upcomingTrip) {
+            document.getElementById("timetbtc").innerText =
+              "No tunnelbannas towards T-Centralen coming soon.";
+
+            return;
+          }
+
+          const leg = upcomingTrip.LegList.Leg[0]; // We know this is the best trip, so take the first leg
+          const product = leg.Product?.name || "Unknown";
+          const direction = leg.direction || "Unknown";
+          const originalDepartureTime = leg.Origin?.time || "00:00:00";
+          const originName = leg.Origin?.name || "Unknown Origin";
+          const realTimeDepartureTime =
+            leg.Origin?.rtTime || originalDepartureTime;
+          var comingInHowManyMinutes = calculateTimeDifference(
+            getCurrentTime(),
+            realTimeDepartureTime
+          );
+
+          // Compare original and real-time departure times to calculate delay
+          const delayMinutes = calculateTimeDifference(
+            originalDepartureTime,
+            realTimeDepartureTime
+          );
+          let delayedOrNot = "";
+          if (delayMinutes > 0) {
+            delayedOrNot = `Delayed ${delayMinutes} minutes, coming in `;
+          } else if (delayMinutes < 0) {
+            delayedOrNot = `${Math.abs(delayMinutes)} minute early, coming in `;
+          } else {
+            delayedOrNot = `On time, coming in `;
+          }
+          if (comingInHowManyMinutes == 0) {
+            delayedOrNot = "";
+            comingInHowManyMinutes = "Now";
+            minutes = "";
+          } else {
+            minutes = " minutes";
+          }
+          //It updates a global variable that will now know when the transport is coming
+          departuretbtokungdstradgarden = addMinutesToTime(
+            getCurrentTime(),
+            comingInHowManyMinutes
+          );
+          // Display the bus information
+          const triptbtcInfoHTML =
+            `
+
+          <div class="busInfo" id="tbtotc">
+              <i class="bi bi-train-front"></i> to ${direction} in <span id="timetbtc">${comingInHowManyMinutes}</span>` +
+            minutes +
+            `
+          </div>
+
+      `;
+
+          document.getElementById("triptbtc").innerHTML = triptbtcInfoHTML;
+        } catch (error) {
+          console.error("Error fetching bus info:", error);
+          document.getElementById("timetbtc").innerText =
+            "Error loading tunnelbanna information.";
+        }
+      }
+      async function fetchtbakalla() {
+        try {
+          console.log(
+            "%c Fetch T-B Akalla called %c " + getCurrentTime(),
+            "background: lightgreen; color:black;",
+            "background: lightgreen; color:black;"
+          );
+          const uniqueParam = new Date().getTime();
+          const response = await fetch(
+            `/api/triptbakalla?timestamp=${uniqueParam}`
+          );
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const data = await response.json();
+
+          if (!data.Trip || data.Trip.length === 0) {
+            throw new Error("No triptbakalla data available");
+          }
+
+          let upcomingTrip = null;
+          let earliestTimeDifference = Infinity;
+
+          // console.log("Trips fetched:", data.Trip);
+
+          // Loop through the trips
+          for (const trip of data.Trip) {
+            const legs = trip.LegList?.Leg || []; // Safely access the array of legs
+
+            // Iterate through each leg in the trip
+            for (const leg of legs) {
+              const product = leg.Product?.name || "Unknown";
+              const destination = leg.Destination?.name || "Unknown";
+              const originName = leg.Origin?.name || "Unknown Origin";
+
+              // Only consider Trains towards Stockholm City from Ulriksdal
+              if (originName === "Hallonbergen" && destination === "Akalla") {
+                const originalDepartureTime = leg.Origin?.time || "00:00:00";
+                const realTimeDepartureTime =
+                  leg.Origin?.rtTime || originalDepartureTime;
+                const currentTime = getCurrentTime();
+
+                // Log times for debugging
+                //     console.log(
+                //       `Current Time: ${currentTime}, Real Time Departure: ${realTimeDepartureTime}`
+                //    );
+
+                const timeDifference = calculateTimeDifference(
+                  currentTime,
+                  realTimeDepartureTime
+                );
+                //  console.log(`Time difference: ${timeDifference}`);
+
+                if (
+                  timeDifference >= 0 &&
+                  timeDifference < earliestTimeDifference
+                ) {
+                  // Update the upcomingTrip if this bus is sooner than the current upcomingTrip
+                  upcomingTrip = trip;
+                  earliestTimeDifference = timeDifference;
+                }
+              }
+            }
+          }
+
+          // If no upcoming trip was found, show a message
+          if (!upcomingTrip) {
+            document.getElementById("timetbakalla").innerText =
+              "No tunnelbannas towards Akalla coming soon.";
+
+            return;
+          }
+
+          const leg = upcomingTrip.LegList.Leg[0]; // We know this is the best trip, so take the first leg
+          const product = leg.Product?.name || "Unknown";
+          const direction = leg.direction || "Unknown";
+          const originalDepartureTime = leg.Origin?.time || "00:00:00";
+          const originName = leg.Origin?.name || "Unknown Origin";
+          const realTimeDepartureTime =
+            leg.Origin?.rtTime || originalDepartureTime;
+          var comingInHowManyMinutes = calculateTimeDifference(
+            getCurrentTime(),
+            realTimeDepartureTime
+          );
+
+          // Compare original and real-time departure times to calculate delay
+          const delayMinutes = calculateTimeDifference(
+            originalDepartureTime,
+            realTimeDepartureTime
+          );
+          let delayedOrNot = "";
+          if (delayMinutes > 0) {
+            delayedOrNot = `Delayed ${delayMinutes} minutes, coming in `;
+          } else if (delayMinutes < 0) {
+            delayedOrNot = `${Math.abs(delayMinutes)} minute early, coming in `;
+          } else {
+            delayedOrNot = `On time, coming in `;
+          }
+          if (comingInHowManyMinutes == 0) {
+            delayedOrNot = "";
+            comingInHowManyMinutes = "Now";
+            minutes = "";
+          } else {
+            minutes = " minutes";
+          }
+          //It updates a global variable that will now know when the transport is coming
+          departuretbtoakalla = addMinutesToTime(
+            getCurrentTime(),
+            comingInHowManyMinutes
+          );
+          // Display the bus information
+          const triptbakallaInfoHTML =
+            `
+
+          <div class="busInfo" id="tbtoakalla">
+              <i class="bi bi-train-front"></i> to ${direction} in <span id="timetbakalla">${comingInHowManyMinutes}</span>` +
+            minutes +
+            `
+          </div>
+
+      `;
+
+          document.getElementById("triptbakalla").innerHTML =
+            triptbakallaInfoHTML;
+        } catch (error) {
+          console.error("Error fetching bus info:", error);
+          document.getElementById("timetbakalla").innerText =
+            "Error loading tunnelbanna information.";
+        }
+      }
+
+      ////////////////TUNNELBANNA////////////////
+      ////////////////TUNNELBANNA////////////////
+      ////////////////TUNNELBANNA////////////////
+
+      ////////////////WEATHER////////////////
+      async function fetchWeather() {
+        try {
+          const response = await fetch(`/api/temperaturestockholm`);
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const data = await response.json();
+
+          // Correctly access the temperature value
+          const temperature = data.data[0].coordinates[0].dates[0].value;
+
+          // Update the innerHTML of the element with id "weather"
+          document.getElementById("weather").innerHTML = `${temperature} °C`;
+        } catch (error) {
+          console.error("Error fetching weather data:", error);
+          // Optionally, display an error message in the UI
+          document.getElementById("weather").innerHTML =
+            "Error fetching weather data.";
+        }
+        updateWeather();
+      }
+
+      fetchWeather();
+
+      function updateWeather() {
+        setTimeout(function () {
+          fetchWeather();
+        }, 1800000); //
+      }
+
+      ////////////////WEATHER////////////////
+
+      ////////////////TIME////////////////
+      function setTimeOnDocument() {
+        document.getElementById("time").innerText = getCurrentTime();
+        updateTime();
+      }
+
+      setTimeOnDocument();
+
+      function updateTime() {
+        setTimeout(function () {
+          setTimeOnDocument();
+        }, 10000); //
+      }
+
+      ////////////////TIME////////////////
+      ///////////////DATE AND WEEK////////
+      function getDayAndDate() {
+        // Array of day names
+        const days = [
+          "Sunday",
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+          "Friday",
+          "Saturday",
+        ];
+
+        // Get the current date
+        const currentDate = new Date();
+
+        // Get the day name and the day/month in DD/MM format
+        const dayName = days[currentDate.getDay()];
+        const day = String(currentDate.getDate()).padStart(2, "0"); // Pad single-digit days with 0
+        const month = String(currentDate.getMonth() + 1).padStart(2, "0"); // Pad single-digit months with 0
+
+        // Format the result
+        const result = `${dayName} - ${day}/${month}`;
+
+        return result;
+      }
+      function setDayOnDocument() {
+        document.getElementById("dayanddate").innerText = getDayAndDate();
+        updateDay();
+      }
+      function updateDay() {
+        setTimeout(function () {
+          setDayOnDocument();
+        }, 60000); // Updates every minute
+      }
+      setDayOnDocument();
+      ///////////////DATE AND WEEK////////
+
+      var activeTab = "";
+
+      function canFetchDueTowWorkingHours() {
+        var currentHour = new Date().getHours(); // Get the current hour (0-23)
+        var currentMinutes = new Date().getMinutes();
+        var currentSeconds = new Date().getSeconds();
+
+        // Return false if the hour is one of the non-working hours
+        if (
+          (currentHour > 1 && currentHour < 5) || // 2 AM to 4 AM
+          currentHour === 10 || // Exactly 10 AM
+          (currentHour > 12 && currentHour < 16) || // 1 PM to 3 PM
+          currentHour === 20 || // Exactly 8 PM
+          currentHour === 21 // Exactly 9 PM
+        ) {
+          return false;
+        } else {
+          if (currentMinutes == "00" && currentSeconds <= "24") {
+            canfetch = true;
+            //when it is a new "working hour, it let's let it fetch"
+          }
+        }
+
+        // If none of the above conditions match, return true
+        return true;
+      }
+
+      function updateLocally() {
+        if (!canFetchDueTowWorkingHours()) {
+          //if false
+          document.getElementById("buses").classList.add("noShow");
+          document.getElementById("trenes").classList.add("noShow");
+          document.getElementById("tunnelbannas").classList.add("noShow");
+
+          document.getElementById("540touniversitetet").classList.add("noShow");
+          document.getElementById("505tobagartorp").classList.add("noShow");
+          document.getElementById("505tosolnacentrum").classList.add("noShow");
+          document.getElementById("540totenstacentrum").classList.add("noShow");
+          document
+            .getElementById("pendeltostockholmcity")
+            .classList.add("noShow");
+          document.getElementById("pendeltohaggvik").classList.add("noShow");
+          document.getElementById("tbtoakalla").classList.add("noShow");
+          document.getElementById("tbtotc").classList.add("noShow");
+        } else {
+          //if true
+          document.getElementById("buses").classList.remove("noShow");
+          document.getElementById("trenes").classList.remove("noShow");
+          document.getElementById("tunnelbannas").classList.remove("noShow");
+
+          document
+            .getElementById("540touniversitetet")
+            .classList.remove("noShow");
+          document.getElementById("505tobagartorp").classList.remove("noShow");
+          document
+            .getElementById("505tosolnacentrum")
+            .classList.remove("noShow");
+          document
+            .getElementById("540totenstacentrum")
+            .classList.remove("noShow");
+          document
+            .getElementById("pendeltostockholmcity")
+            .classList.remove("noShow");
+          document.getElementById("pendeltohaggvik").classList.remove("noShow");
+          document.getElementById("tbtoakalla").classList.remove("noShow");
+          document.getElementById("tbtotc").classList.remove("noShow");
+
+          console.log(
+            "%c ////////////////////////////////////////////////////",
+            "background: #CCCC00; color: black; font-weight: bold;"
+          );
+
+          console.log(
+            "%c Locally, next fetch: %c " + nextfetch,
+            "background: yellow; color:black;",
+            "background: yellow; color:black;"
+          );
+          console.log(
+            "%c Departure 540 to Universitetet: %c " +
+              departure540touniversitetet,
+            "background: yellow; color:black;",
+            "background: yellow; color:black;"
+          );
+          console.log(
+            "%c Departure 505 to Bagartorp: %c " + departure505tobagartorp,
+            "background: yellow; color:black;",
+            "background: yellow; color:black;"
+          );
+          console.log(
+            "%c Departure 505 to Solna Centrum: %c " +
+              departure505tosolnacentrum,
+            "background: yellow; color:black;",
+            "background: yellow; color:black;"
+          );
+          console.log(
+            "%c Departure 540 to Tensta Centrum: %c " +
+              departure540totenstacentrum,
+            "background: yellow; color:black;",
+            "background: yellow; color:black;"
+          );
+          console.log(
+            "%c Departure Pendeltåg to T-Centralen: %c " + departurependeltotc,
+            "background: yellow; color:black;",
+            "background: yellow; color:black;"
+          );
+          console.log(
+            "%c Departure Pendeltåg to Märsta: %c " + departurependeltomarsta,
+            "background: yellow; color:black;",
+            "background: yellow; color:black;"
+          );
+          console.log(
+            "%c Departure Tunnelbana to Akalla: %c " + departuretbtoakalla,
+            "background: yellow; color:black;",
+            "background: yellow; color:black;"
+          );
+          console.log(
+            "%c Departure Tunnelbana to Kungsträdgården: %c " +
+              departuretbtokungdstradgarden,
+            "background: yellow; color:black;",
+            "background: yellow; color:black;"
+          );
+          console.log(
+            "%c ////////////////////////////////////////////////////",
+            "background: #CCCC00; color: black; font-weight: bold;"
+          );
+
+          //////////////////////////////////////////////////////////////////
+          let minutesleft540universitetet = calculateTimeDifference(
+            getCurrentTime(),
+            departure540touniversitetet
+          );
+          if (minutesleft540universitetet == 0) {
+            document.getElementById("time540universitetet").innerText = "Now";
+          } else if (minutesleft540universitetet < 0) {
+            document
+              .getElementById("540touniversitetet")
+              .classList.add("noShow");
+          } else if (minutesleft540universitetet > 0) {
+            document.getElementById("time540universitetet").innerText =
+              minutesleft540universitetet;
+          }
+          if (minutesleft540universitetet == 404) {
+            document.getElementById("time540universitetet").innerText = "";
+          }
+
+          if (minutesleft540universitetet == -1) {
+            //if the trip has gone more than a minute ago, tries to get a new one
+            fetch540universitetet();
+          }
+
+          //////////////////////////////////////////////////////////////////
+          //////////////////////////////////////////////////////////////////
+          let minutesleft505bagartorp = calculateTimeDifference(
+            getCurrentTime(),
+            departure505tobagartorp
+          );
+          if (minutesleft505bagartorp == 0) {
+            document.getElementById("time505bagartorp").innerText = "Now";
+          } else if (minutesleft505bagartorp < 0) {
+            document.getElementById("505tobagartorp").classList.add("noShow");
+          } else if (minutesleft505bagartorp > 0) {
+            document.getElementById("time505bagartorp").innerText =
+              minutesleft505bagartorp;
+          }
+          if (minutesleft505bagartorp == 404) {
+            document.getElementById("time505bagartorp").innerText = "";
+          }
+          if (minutesleft505bagartorp == -1) {
+            //if the trip has gone more than a minute ago, tries to get a new one
+            fetch505bagatorpssodra();
+          }
+          //////////////////////////////////////////////////////////////////
+          //////////////////////////////////////////////////////////////////
+          let minutesleft505solnacentrum = calculateTimeDifference(
+            getCurrentTime(),
+            departure505tosolnacentrum
+          );
+          if (minutesleft505solnacentrum == 0) {
+            document.getElementById("time505solnacentrum").innerText = "Now";
+          } else if (minutesleft505solnacentrum < 0) {
+            document
+              .getElementById("505tosolnacentrum")
+              .classList.add("noShow");
+          } else if (minutesleft505solnacentrum > 0) {
+            document.getElementById("time505solnacentrum").innerText =
+              minutesleft505solnacentrum;
+          }
+          if (minutesleft505solnacentrum == 404) {
+            document.getElementById("time505solnacentrum").innerText = "";
+          }
+          if (minutesleft505solnacentrum == -1) {
+            //if the trip has gone more than a minute ago, tries to get a new one
+            fetch505solnacentrum();
+          }
+          //////////////////////////////////////////////////////////////////
+          //////////////////////////////////////////////////////////////////
+          let minutesleft540tenstacentrum = calculateTimeDifference(
+            getCurrentTime(),
+            departure540totenstacentrum
+          );
+          if (minutesleft540tenstacentrum == 0) {
+            document.getElementById("time540tenstacentrum").innerText = "Now";
+          } else if (minutesleft540tenstacentrum < 0) {
+            document
+              .getElementById("540totenstacentrum")
+              .classList.add("noShow");
+          } else if (minutesleft540tenstacentrum > 0) {
+            document.getElementById("time540tenstacentrum").innerText =
+              minutesleft540tenstacentrum;
+          }
+          if (minutesleft540tenstacentrum == 404) {
+            document.getElementById("time540tenstacentrum").innerText = "";
+          }
+
+          if (minutesleft540tenstacentrum == -1) {
+            //if the trip has gone more than a minute ago, tries to get a new one
+            fetch540tenstacentrum();
+          }
+          //////////////////////////////////////////////////////////////////
+          //////////////////////////////////////////////////////////////////
+          let minutesleftpendeltotc = calculateTimeDifference(
+            getCurrentTime(),
+            departurependeltotc
+          );
+          if (minutesleftpendeltotc == 0) {
+            document.getElementById("timependelstockholmcity").innerText =
+              "Now";
+          } else if (minutesleftpendeltotc < 0) {
+            document
+              .getElementById("pendeltostockholmcity")
+              .classList.add("noShow");
+          } else if (minutesleftpendeltotc > 0) {
+            document.getElementById("timependelstockholmcity").innerText =
+              minutesleftpendeltotc;
+          }
+          if (minutesleftpendeltotc == 404) {
+            document.getElementById("timependelstockholmcity").innerText = "";
+          }
+
+          if (minutesleftpendeltotc == -1) {
+            //if the trip has gone more than a minute ago, tries to get a new one
+            fetchpendeltoStockholmCity();
+          }
+          //////////////////////////////////////////////////////////////////
+          //////////////////////////////////////////////////////////////////
+          let minutesleftpendeltohaggvik = calculateTimeDifference(
+            getCurrentTime(),
+            departurependeltomarsta
+          );
+          if (minutesleftpendeltohaggvik == 0) {
+            document.getElementById("timependelhaggvik").innerText = "Now";
+          } else if (minutesleftpendeltohaggvik < 0) {
+            document.getElementById("pendeltohaggvik").classList.add("noShow");
+          } else if (minutesleftpendeltohaggvik > 0) {
+            document.getElementById("timependelhaggvik").innerText =
+              minutesleftpendeltohaggvik;
+          }
+          if (minutesleftpendeltohaggvik == 404) {
+            document.getElementById("timependelhaggvik").innerText = "";
+          }
+
+          if (minutesleftpendeltohaggvik == -1) {
+            //if the trip has gone more than a minute ago, tries to get a new one
+            fetchppendeltoHaggvik();
+          }
+          //////////////////////////////////////////////////////////////////
+          //////////////////////////////////////////////////////////////////
+          let minuteslefttbtoakalla = calculateTimeDifference(
+            getCurrentTime(),
+            departuretbtoakalla
+          );
+          if (minuteslefttbtoakalla == 0) {
+            document.getElementById("timetbakalla").innerText = "Now";
+          } else if (minuteslefttbtoakalla < 0) {
+            document.getElementById("tbtoakalla").classList.add("noShow");
+          } else if (minuteslefttbtoakalla > 0) {
+            document.getElementById("timetbakalla").innerText =
+              minuteslefttbtoakalla;
+          }
+          if (minuteslefttbtoakalla == 404) {
+            document.getElementById("timetbakalla").innerText = "";
+          }
+          if (minuteslefttbtoakalla == -1) {
+            //if the trip has gone more than a minute ago, tries to get a new one
+            fetchtbakalla();
+          }
+          //////////////////////////////////////////////////////////////////
+          //////////////////////////////////////////////////////////////////
+          let minuteslefttbtotc = calculateTimeDifference(
+            getCurrentTime(),
+            departuretbtokungdstradgarden
+          );
+          if (minuteslefttbtotc == 0) {
+            document.getElementById("timetbtc").innerText = "Now";
+          } else if (minuteslefttbtotc < 0) {
+            document.getElementById("tbtotc").classList.add("noShow");
+          } else if (minuteslefttbtotc > 0) {
+            document.getElementById("timetbtc").innerText = minuteslefttbtotc;
+          }
+          if (minuteslefttbtotc == 404) {
+            document.getElementById("timetbtc").innerText = "";
+          }
+
+          if (minuteslefttbtotc == -1) {
+            //if the trip has gone more than a minute ago, tries to get a new one
+            fetchtbtc();
+          }
+          //////////////////////////////////////////////////////////////////
+          if (getCurrentTime() == nextfetch) {
+            //If it is already time for a new fetch, then let it fetch
+            canfetch = true;
+          }
+        }
+      }
+
+      function swapTabs() {
+        if (!canFetchDueTowWorkingHours()) {
+          //IF IT IS FALSE
+          document.getElementById("buses").classList.add("noShow");
+          document.getElementById("trenes").classList.add("noShow");
+          document.getElementById("tunnelbannas").classList.add("noShow");
+
+          document.getElementById("540touniversitetet").classList.add("noShow");
+          document.getElementById("505tobagartorp").classList.add("noShow");
+          document.getElementById("505tosolnacentrum").classList.add("noShow");
+          document.getElementById("540totenstacentrum").classList.add("noShow");
+          document
+            .getElementById("pendeltostockholmcity")
+            .classList.add("noShow");
+          document.getElementById("pendeltohaggvik").classList.add("noShow");
+          document.getElementById("tbtoakalla").classList.add("noShow");
+          document.getElementById("tbtotc").classList.add("noShow");
+
+          timerswapTabs(5000);
+        } else {
+          // it is true
+          document.getElementById("buses").classList.remove("noShow");
+          document.getElementById("trenes").classList.remove("noShow");
+          document.getElementById("tunnelbannas").classList.remove("noShow");
+
+          document
+            .getElementById("540touniversitetet")
+            .classList.remove("noShow");
+          document.getElementById("505tobagartorp").classList.remove("noShow");
+          document
+            .getElementById("505tosolnacentrum")
+            .classList.remove("noShow");
+          document
+            .getElementById("540totenstacentrum")
+            .classList.remove("noShow");
+          document
+            .getElementById("pendeltostockholmcity")
+            .classList.remove("noShow");
+          document.getElementById("pendeltohaggvik").classList.remove("noShow");
+          document.getElementById("tbtoakalla").classList.remove("noShow");
+          document.getElementById("tbtotc").classList.remove("noShow");
+
+          if (canfetch == false) {
+            updateLocally();
+          }
+          if (canfetch == true) {
+            console.log(
+              "%c //////////////////////////////////////////////////  ",
+              "background: green; color:black;  font-weight: bold;"
+            );
+            fetchpendeltoStockholmCity();
+            fetchppendeltoHaggvik();
+            fetchtbakalla();
+            fetchtbtc();
+            fetch505bagatorpssodra();
+            fetch505solnacentrum();
+            fetch540tenstacentrum();
+            fetch540universitetet();
+            document
+              .getElementById("540touniversitetet")
+              .classList.remove("noShow");
+            document
+              .getElementById("505tobagartorp")
+              .classList.remove("noShow");
+            document
+              .getElementById("505tosolnacentrum")
+              .classList.remove("noShow");
+            document
+              .getElementById("540totenstacentrum")
+              .classList.remove("noShow");
+            document
+              .getElementById("pendeltostockholmcity")
+              .classList.remove("noShow");
+            document
+              .getElementById("pendeltohaggvik")
+              .classList.remove("noShow");
+            document.getElementById("tbtoakalla").classList.remove("noShow");
+            document.getElementById("tbtotc").classList.remove("noShow");
+            canfetch = false; //deactivates the fetch
+            lastfetched = getCurrentTime(); //sets when we last fetched
+            nextfetch = addMinutesToTime(lastfetched, 5); //shows the system the next time we can fetch
+            console.log(
+              "%c Fetching, %c " +
+                getCurrentTime() +
+                " %c next fetch: " +
+                nextfetch,
+              "background: lightgreen; color:black;", // Style for "Fetching"
+              "background: lightgreen; color:black;", // Style for the time
+              "background: lightgreen; color:black;" // Style for "next fetch"
+            );
+
+            console.log(
+              "%c //////////////////////////////////////////////////  ",
+              "background: green; color:black;  font-weight: bold;"
+            );
+          }
+          if (activeTab == "") {
+            document.getElementById("buses").classList.remove("noShow");
+            document.getElementById("trenes").classList.add("noShow");
+            document.getElementById("tunnelbannas").classList.add("noShow");
+
+            timerswapTabs(5000);
+            return (activeTab = "trenes");
+          }
+
+          if (activeTab == "bus") {
+            document.getElementById("buses").classList.remove("noShow");
+            document.getElementById("trenes").classList.add("noShow");
+            document.getElementById("tunnelbannas").classList.add("noShow");
+
+            timerswapTabs(5000);
+            return (activeTab = "trenes");
+          }
+          if (activeTab == "trenes") {
+            document.getElementById("buses").classList.add("noShow");
+            document.getElementById("trenes").classList.remove("noShow");
+            document.getElementById("tunnelbannas").classList.add("noShow");
+
+            timerswapTabs(5000);
+            return (activeTab = "tunnelbannas");
+          }
+          if (activeTab == "tunnelbannas") {
+            document.getElementById("buses").classList.add("noShow");
+            document.getElementById("trenes").classList.add("noShow");
+            document.getElementById("tunnelbannas").classList.remove("noShow");
+
+            timerswapTabs(5000);
+            return (activeTab = "bus");
+          }
+        }
+      }
+
+      function timerswapTabs(time) {
+        setTimeout(function () {
+          swapTabs();
+        }, time); //
+      }
+
+      swapTabs();
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>

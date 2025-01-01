@@ -1,0 +1,5 @@
+It is maybe that I do one api request for each bus that are passing through spegeldammsparken (investigate busses)
+
+And one Api request for each trains that are going to T-C and also to the north?
+
+
