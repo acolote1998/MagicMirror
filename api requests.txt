@@ -1,0 +1,146 @@
+SL Stop lookup
+API Requesting Spegeldammsparken station data
+Spegeldammsparken
+SiteId: 300103491
+59.38290732996195
+17.983682641820064
+https://journeyplanner.integration.sl.se/v1/typeahead.json?searchstring=Spegeldamm&stationsonly=true&maxresults=2&key=b39bfce8eec649eda2e7bd131bb4ecf0&type=S
+
+API Requesting Bagatorp Södra station data (505 towards bagatorp, 540 towards universitetet)
+Bagtorp Södra 
+SiteId:300109957
+59.37755941536501
+17.998952370654642
+https://journeyplanner.integration.sl.se/v1/typeahead.json?searchstring=Bagatorp&stationsonly=true&maxresults=5&key=b39bfce8eec649eda2e7bd131bb4ecf0&type=S
+
+Universitetet Bus Data 
+Universitetet SiteId: 300109203
+59.36575987476077
+18.05453555656101
+https://journeyplanner.integration.sl.se/v1/typeahead.json?searchstring=universi&stationsonly=true&maxresults=2&key=b39bfce8eec649eda2e7bd131bb4ecf0&type=S
+
+Solna Centrum (T)
+"SiteId": "300109305"
+59.35841634521147
+17.997707861727083
+https://journeyplanner.integration.sl.se/v1/typeahead.json?searchstring=solna&stationsonly=true&maxresults=4&key=b39bfce8eec649eda2e7bd131bb4ecf0&type=S
+
+
+Tensta Centrum (T)
+"SiteId": "300103786"
+59.39469788966184
+17.906993970625578
+https://journeyplanner.integration.sl.se/v1/typeahead.json?searchstring=tensta&stationsonly=true&maxresults=4&key=b39bfce8eec649eda2e7bd131bb4ecf0&type=S
+
+Frescati
+"SiteId": "300101178"
+https://journeyplanner.integration.sl.se/v1/typeahead.json?searchstring=frescati&stationsonly=true&maxresults=4&key=b39bfce8eec649eda2e7bd131bb4ecf0&type=S
+
+Agnesberg
+"SiteId": "300103442"
+https://journeyplanner.integration.sl.se/v1/typeahead.json?searchstring=agnesberg&stationsonly=true&maxresults=4&key=b39bfce8eec649eda2e7bd131bb4ecf0&type=S
+
+Bollgatan
+"SiteId": "300103466"
+https://journeyplanner.integration.sl.se/v1/typeahead.json?searchstring=bollgatan&stationsonly=true&maxresults=4&key=b39bfce8eec649eda2e7bd131bb4ecf0&type=S
+
+Risingeplan
+"SiteId": "300103788"
+https://journeyplanner.integration.sl.se/v1/typeahead.json?searchstring=risingeplan&stationsonly=true&maxresults=4&key=b39bfce8eec649eda2e7bd131bb4ecf0&type=S
+
+
+Ulriksdal (Pendel)
+Site ID:300109508
+59.380694229483524
+18.000516415866276
+https://journeyplanner.integration.sl.se/v1/typeahead.json?searchstring=ulriksdal&stationsonly=true&maxresults=4&key=b39bfce8eec649eda2e7bd131bb4ecf0&type=S
+
+
+Stockholm City (Pendel)
+"SiteId": "300101080"
+59.33115858206812
+18.059402305922088
+https://journeyplanner.integration.sl.se/v1/typeahead.json?searchstring=stockholm&stationsonly=true&maxresults=4&key=b39bfce8eec649eda2e7bd131bb4ecf0&type=S
+
+
+Häggvik (Pendel)
+"SiteId": "300109505"
+59.44404429793658
+17.932662407671838
+https://journeyplanner.integration.sl.se/v1/typeahead.json?searchstring=ggvik&stationsonly=true&maxresults=4&key=b39bfce8eec649eda2e7bd131bb4ecf0&type=S
+
+Hallonbergen
+"SiteId": "300109303"
+59.375354132066605
+17.969118517590957
+https://journeyplanner.integration.sl.se/v1/typeahead.json?searchstring=hallonb&stationsonly=true&maxresults=4&key=b39bfce8eec649eda2e7bd131bb4ecf0&type=S
+
+
+Akalla
+SiteID: 300109300
+59.413819193724414
+17.91737977637064
+https://journeyplanner.integration.sl.se/v1/typeahead.json?searchstring=akalla&stationsonly=true&maxresults=4&key=b39bfce8eec649eda2e7bd131bb4ecf0&type=S
+
+T-Centralen
+SiteID: 300109001
+59.33108667461729
+18.05957403812906
+https://journeyplanner.integration.sl.se/v1/typeahead.json?searchstring=t-centralen&stationsonly=true&maxresults=4&key=b39bfce8eec649eda2e7bd131bb4ecf0&type=S
+___________________________________________________________________________________________________
+___________________________________________________________________________________________________
+___________________________________________________________________________________________________
+
+SL Route-planner v3.1
+
+////////////////////////////////////////////////////////////////////////////
+/////////////////////TUNNELBANNA///////////////////////////
+
+TUNNELBANNA TOWARDS STOCKHOLM CITY FROM HALLONBERGEN
+https://journeyplanner.integration.sl.se/v1/TravelplannerV3_1/trip.json?key=78d614ebfcf64b2393521b8cae117b07&lang=en&originExtId=300109303&originCoordLat=59.375354132066605&originCoordLong=17.969118517590957&destExtId=300109001&destCoordLat=59.33108667461729&destCoordLong=18.05957403812906&numF=6&Products=2
+
+
+TUNNELBANNA TOWARDS AKALLA FROM HALLONBERGEN
+https://journeyplanner.integration.sl.se/v1/TravelplannerV3_1/trip.json?key=78d614ebfcf64b2393521b8cae117b07&lang=en&originExtId=300109303&originCoordLat=59.375354132066605&originCoordLong=17.969118517590957&destExtId=300109300&destCoordLat=59.413819193724414&destCoordLong=17.91737977637064&numF=6&Products=2
+
+/////////////////////TUNNELBANNA///////////////////////////
+////////////////////////////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////////////////////////////////
+/////////////////////TRAINS///////////////////////////
+
+PENDEL TOWARDS STOCKHOLM CITY FROM ULRIKSDAL
+https://journeyplanner.integration.sl.se/v1/TravelplannerV3_1/trip.json?key=78d614ebfcf64b2393521b8cae117b07&lang=en&originExtId=300109508&originCoordLat=59.380694229483524&originCoordLong=18.000516415866276&destExtId=300101080&destCoordLat=59.33115858206812&destCoordLong=18.059402305922088&numF=6&Products=1
+
+
+PENDEL TOWARDS NORTH (Häggvik) FROM ULRIKSDAL
+https://journeyplanner.integration.sl.se/v1/TravelplannerV3_1/trip.json?key=78d614ebfcf64b2393521b8cae117b07&lang=en&originExtId=300109508&originCoordLat=59.380694229483524&originCoordLong=18.000516415866276&destExtId=300109505&destCoordLat=59.44404429793658&destCoordLong=17.932662407671838&numF=6&Products=1
+
+/////////////////////TRAINS///////////////////////////
+////////////////////////////////////////////////////////////////////////////
+
+
+
+////////////////////////////////////////////////////////////////////////////
+/////////////////////BUSES///////////////////////////
+
+
+Bus 540 towards universitetet (Spegeldammsparken to Universitetet, passing by Frescati)
+https://journeyplanner.integration.sl.se/v1/TravelplannerV3_1/trip.json?key=78d614ebfcf64b2393521b8cae117b07&lang=en&originExtId=300103491&originCoordLat=59.382827621206914&originCoordLong=17.9836075814318&destExtId=300109203&destCoordLat=59.36575987476077&destCoordLong=18.05453555656101&numF=6&via=300101178Products=8
+
+Bus 505 towards Bagatorp södra (Spegeldammsparken to bagatorps södra passing by Agnesberg)
+https://journeyplanner.integration.sl.se/v1/TravelplannerV3_1/trip.json?key=78d614ebfcf64b2393521b8cae117b07&lang=en&originExtId=300103491&originCoordLat=59.382827621206914&originCoordLong=17.9836075814318&destExtId=300109957&destCoordLat=59.37755941536501&destCoordLong=17.998952370654642&numF=6&via=300103442Products=8
+
+Bus 505 towards Solna Centrum (Spegeldammsparken to Solna Centrum passing by Bollgatan)
+https://journeyplanner.integration.sl.se/v1/TravelplannerV3_1/trip.json?key=78d614ebfcf64b2393521b8cae117b07&lang=en&originExtId=300103491&originCoordLat=59.382827621206914&originCoordLong=17.9836075814318&destExtId=300109305&destCoordLat=59.35841634521147&destCoordLong=17.997707861727083&numF=6&via=300103466Products=8
+
+Bus 540 towards Tensta Centrum (Spegeldammsparken to Tensta Centrum passing by Bollgatan)
+https://journeyplanner.integration.sl.se/v1/TravelplannerV3_1/trip.json?key=78d614ebfcf64b2393521b8cae117b07&lang=en&originExtId=300103491&originCoordLat=59.382827621206914&originCoordLong=17.9836075814318&destExtId=300103786&destCoordLat=59.39469788966184&destCoordLong=17.906993970625578&numF=6&via=300103788Products=8
+
+/////////////////////BUSES///////////////////////////
+////////////////////////////////////////////////////////////////////////////
+
+    "78d614ebfcf64b2393521b8cae117b07", // Akis Key
+    "a6a022cc45c84efa93a66c8637159225", // Misas Key
+    "9035020c1f9041c2b2bb8557fbbb8611", //Aki 2 key
